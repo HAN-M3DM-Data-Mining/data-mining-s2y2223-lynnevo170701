@@ -16,6 +16,7 @@ library(googlesheets4)
 library(class)
 library(caret)
 library(creditmodel)
+library(cvms)
 ```
 
 ## Business Understanding
@@ -24,35 +25,42 @@ Diabetes prevents your body to turn food intor energy. This can cause serious he
 
 ## Data Understanding
 
-The dataset is orginially retrieved from National Institute of Diabetes and Digestive and Kidney Diseases.With the result of diagnostic measurements, a patient is predicted to have diabetes or not. Donor database is Vincent Sigillito from RMI Group Leader Applied Physics Laboratory The Johns Hopkins University Johns Hopkins Road Laurel. The dataset used is downloaded from open source [*(Diabetes Dataset, 2020)*]{style="color:blue"}.
-The instances are females at least 21 years old of Pima Indian heritage.\
-The dataset is stored in a Github repo and cloned into local repo. It is in .csv file. To read this, we use `readr` package. 
+The dataset is orginially retrieved from National Institute of Diabetes and Digestive and Kidney Diseases.With the result of diagnostic measurements, a patient is predicted to have diabetes or not. Donor database is Vincent Sigillito from RMI Group Leader Applied Physics Laboratory The Johns Hopkins University Johns Hopkins Road Laurel. The dataset used is downloaded from open source [*(Diabetes Dataset, 2020)*]{style="color:blue"}. The instances are females at least 21 years old of Pima Indian heritage.\
+The dataset is stored in a Github repo and cloned into local repo. It is in .csv file. To read this, we use `readr` package.
+
 ```{r}
 rawDF <- read_csv("./datasets/KNN-diabetes.csv")
 ```
 
-By using `str()` function, we can have first sense of data. 
+By using `str()` function, we can have first sense of data.
+
 ```{r}
 str(rawDF)
 ```
-The dimension of dataset is 768 x 9, which means that the data has 768 observations and 9 variables The data type of all variables are `num`. 
-We can use `summary` function to see the summary information of each variable and we can check if each has Nas values, which we need to clean. 
+
+The dimension of dataset is 768 x 9, which means that the data has 768 observations and 9 variables The data type of all variables are `num`. We can use `summary` function to see the summary information of each variable and we can check if each has Nas values, which we need to clean.
+
 ```{r}
 summary(rawDF)
 ```
+
 Then we should check if the data has duplicated values
+
 ```{r}
-sum(duplicated(rawDF))
+dup_check <- sum(duplicated(rawDF))
+dup_check
 ```
 
 ## Data Preparation
 
-The `outcome` variable has the values we need to predict "0 - negative" and "1 - positive".We need to set level and label for it to easily sort or call it later. 
+The `outcome` variable has the values we need to predict "0 - negative" and "1 - positive".We need to set level and label for it to easily sort or call it later.
+
 ```{r}
 rawDF$Outcome <- factor(rawDF$Outcome, levels = c(0, 1), labels = c("Negative", "Positive")) %>%  relevel("Positive")
 ```
 
-We can clearly see that the variables have different ranges. We need to normalize it before splitting into train and test set. 
+We can clearly see that the variables have different ranges. We need to normalize it before splitting into train and test set.
+
 ```{r}
 normalize <- function(x) {
   return ((x - min(x)) / (max(x) - min(x)))
@@ -61,18 +69,23 @@ cleanDF <- rawDF
 cleanDF[,1:8] <- normalize(cleanDF[,1:(ncol(rawDF)-1)])
 summary(cleanDF)
 ```
-After running `summary`, we see that normalization has set all the parameters into the same range
-Now, we split our data into training and test sets by using `train_test_split` from package `creditmodel`
+
+After running `summary`, we see that normalization has set all the parameters into the same range Now, we split our data into training and test sets by using `train_test_split` from package `creditmodel`
+
 ```{r}
 test <- train_test_split(cleanDF)[[1]]
 train <- train_test_split(cleanDF)[[2]]
 ```
-These two data frames inclue `outcome`. But we only need parameters without `outcome` variable to set as `train_feat` or `test_feat, so we will exclude that variable. 
+
+These two data frames inclue `outcome`. But we only need parameters without `outcome` variable to set as `train_feat` or \`test_feat, so we will exclude that variable.
+
 ```{r}
 test_feat <- test[-9]
 train_feat <- train[-9]
 ```
-Creating labels for training and test set 
+
+Creating labels for training and test set
+
 ```{r}
 test_labels <- test[, 9]
 train_labels <- train[,9]
@@ -80,21 +93,58 @@ train_labels <- train[,9]
 
 ## Modeling
 
-We will use `knn` from package `class`. It takes the set with `train_feat` and the set with `train_labels`. The trained model is applied to the set with `test_feat` and it will return a set of predictions. The amount number of neighbors are set to 21. 
+I will use `knn` from package `class`. It takes the set with `train_feat` and the set with `train_labels`. The trained model is applied to the set with `test_feat` and it will return a set of predictions. First, I find the optimal `k` value to make the knn has the lowest error rate by creating function `error_k` with the argument `k`. `error_k` will return a data frame of `error_rate` values corresponding to `k` values. Using `relevel` function to prevent the warning message " Levels are not in the same order for reference and data. Refactoring data to match" when running `confusionMatrix`.
+
 ```{r}
-cleanDF_test_pred <- knn(train = as.matrix(train_feat), test = as.matrix(test_feat), cl = as.matrix(train_labels), k = 21)
+error_k <- function(k) {
+  error_rate <- data.frame()
+  for (i in k) {
+      knn <- knn(train = as.matrix(train_feat), test = as.matrix(test_feat), cl = as.matrix(train_labels), k = i)
+      knn <- relevel(knn, "Positive")
+      matrix <- confusionMatrix(knn, test_labels[[1]], positive = NULL, dnn = c("Prediction", "True"))
+      error_rate <- rbind(error_rate, 1-matrix$overall[["Accuracy"]])
+  }
+  error_k <- data.frame(k, error_rate)
+  colnames(error_k) <- c("k", "error_rate")
+  error_k
+}
+```
+
+Now, I will plot error rate with k from 1 to 40.
+
+```{r}
+plot <- error_k(1:40)
+ggplot(plot, aes(x = k, y = error_rate )) +
+  geom_point(colour = "red", size = 3, alpha = 0.5) +
+  geom_line(colour = "blue", size = 0.7, linetype = 2) +
+  labs(title = "Error Rate vs k value") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("Error Rate")
+```
+As shown in the graph, k = 11 will return the lowest error rate. 11 will be used as the amount of nearest neighbours `k` in `knn` function below.
+
+```{r}
+cleanDF_test_pred <- knn(train = as.matrix(train_feat), test = as.matrix(test_feat), cl = as.matrix(train_labels), k = 11)
+cleanDF_test_pred <- relevel(cleanDF_test_pred, "Positive")
 head(cleanDF_test_pred)
 ```
-We have predicted labels. We will compare with actual labels. 
+We have predicted labels. We will compare with actual labels.
+
 ```{r}
-confusionMatrix(cleanDF_test_pred, test_labels[[1]], positive = NULL, dnn = c("Prediction", "True"))
+cf <- confusionMatrix(cleanDF_test_pred, test_labels[[1]], positive = NULL, dnn = c("Prediction", "True"))
+cf
+```
+
+To visualize the confusion matrix, I will use `plot_confusion_matrix` function from package `cvms`. First I need to convert matrix type of `cf` to tibble because this function only accepts data.frame.
+
+```{r}
+table <- as_tibble(cf$table)
+plot_confusion_matrix(table, target_col = "True", prediction_col = "Prediction", counts_col = "n")
 ```
 
 ## Evaluation and Deployment
-
-text and code here
+56.1% of test feature has True Negative and 20% is True Positive. 
 
 ## References
-
 -   What is Diabetes? (2022, July 7). Centers for Disease Control and Prevention. <https://www.cdc.gov/diabetes/basics/diabetes.html>
 -   Diabetes Dataset. (2020, August 5). Kaggle. <https://www.kaggle.com/datasets/mathchi/diabetes-data-set>
