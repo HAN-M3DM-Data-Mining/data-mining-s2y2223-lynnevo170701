@@ -1,16 +1,14 @@
 ---
-title: "Assigment - kNN DIY"
-author:
-  - Author - Linh Khanh Vo
+title: "Assignment - kNN DIY"
+author: 
+- Author - Linh Khanh Vo
   - Reviewer - Anitar Munár
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-   md_document:
-     variant: markdown_github
-     toc: true
-     toc_depth: 2
+  md_document:
+    variant: markdown_github
 ---
-
+# Assignment - kNN DIY
 ```{r include = FALSE}
 library(tidyverse)
 library(googlesheets4)

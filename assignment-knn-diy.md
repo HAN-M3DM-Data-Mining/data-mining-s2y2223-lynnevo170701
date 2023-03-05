@@ -1,13 +1,4 @@
--   <a href="#business-understanding"
-    id="toc-business-understanding">Business Understanding</a>
--   <a href="#data-understanding" id="toc-data-understanding">Data
-    Understanding</a>
--   <a href="#data-preparation" id="toc-data-preparation">Data
-    Preparation</a>
--   <a href="#modeling" id="toc-modeling">Modeling</a>
--   <a href="#evaluation-and-deployment"
-    id="toc-evaluation-and-deployment">Evaluation and Deployment</a>
--   <a href="#references" id="toc-references">References</a>
+# Assignment - kNN DIY
 
 ## Business Understanding
 
