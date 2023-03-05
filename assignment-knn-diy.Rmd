@@ -122,6 +122,7 @@ ggplot(plot, aes(x = k, y = error_rate )) +
   theme(plot.title = element_text(hjust = 0.5)) +
   ylab("Error Rate")
 ```
+
 As shown in the graph, k = 11 will return the lowest error rate. 11 will be used as the amount of nearest neighbours `k` in `knn` function below.
 
 ```{r}
@@ -129,6 +130,7 @@ cleanDF_test_pred <- knn(train = as.matrix(train_feat), test = as.matrix(test_fe
 cleanDF_test_pred <- relevel(cleanDF_test_pred, "Positive")
 head(cleanDF_test_pred)
 ```
+
 We have predicted labels. We will compare with actual labels.
 
 ```{r}
@@ -144,8 +146,10 @@ plot_confusion_matrix(table, target_col = "True", prediction_col = "Prediction",
 ```
 
 ## Evaluation and Deployment
-56.1% of test feature has True Negative and 20% is True Positive. 
+
+56.1% of test feature has True Negative and 20% is True Positive.
 
 ## References
+
 -   What is Diabetes? (2022, July 7). Centers for Disease Control and Prevention. <https://www.cdc.gov/diabetes/basics/diabetes.html>
 -   Diabetes Dataset. (2020, August 5). Kaggle. <https://www.kaggle.com/datasets/mathchi/diabetes-data-set>

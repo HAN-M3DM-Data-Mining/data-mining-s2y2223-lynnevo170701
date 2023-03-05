@@ -225,6 +225,7 @@ ggplot(plot, aes(x = k, y = error_rate )) +
 ```
 
 ![](assignment-knn-diy_files/figure-markdown_github/unnamed-chunk-12-1.png)
+
 As shown in the graph, k = 11 will return the lowest error rate. 11 will
 be used as the amount of nearest neighbours `k` in `knn` function below.
 
