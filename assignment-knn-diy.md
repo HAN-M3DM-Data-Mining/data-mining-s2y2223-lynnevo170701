@@ -217,11 +217,11 @@ ggplot(plot, aes(x = k, y = error_rate )) +
 
 ![](assignment-knn-diy_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
-As shown in the graph, k = 11 will return the lowest error rate. 11 will
+As shown in the graph, k = 10 will return the lowest error rate. 10 will
 be used as the amount of nearest neighbours `k` in `knn` function below.
 
 ``` r
-cleanDF_test_pred <- knn(train = as.matrix(train_feat), test = as.matrix(test_feat), cl = as.matrix(train_labels), k = 11)
+cleanDF_test_pred <- knn(train = as.matrix(train_feat), test = as.matrix(test_feat), cl = as.matrix(train_labels), k = 10)
 cleanDF_test_pred <- relevel(cleanDF_test_pred, "Positive")
 head(cleanDF_test_pred)
 ```
@@ -240,28 +240,28 @@ cf
     ## 
     ##           True
     ## Prediction Positive Negative
-    ##   Positive       46        8
-    ##   Negative       47      129
-    ##                                           
-    ##                Accuracy : 0.7609          
-    ##                  95% CI : (0.7004, 0.8145)
-    ##     No Information Rate : 0.5957          
-    ##     P-Value [Acc > NIR] : 9.804e-08       
-    ##                                           
-    ##                   Kappa : 0.4677          
-    ##                                           
-    ##  Mcnemar's Test P-Value : 2.992e-07       
-    ##                                           
-    ##             Sensitivity : 0.4946          
-    ##             Specificity : 0.9416          
-    ##          Pos Pred Value : 0.8519          
-    ##          Neg Pred Value : 0.7330          
-    ##              Prevalence : 0.4043          
-    ##          Detection Rate : 0.2000          
-    ##    Detection Prevalence : 0.2348          
-    ##       Balanced Accuracy : 0.7181          
-    ##                                           
-    ##        'Positive' Class : Positive        
+    ##   Positive       47       18
+    ##   Negative       46      119
+    ##                                          
+    ##                Accuracy : 0.7217         
+    ##                  95% CI : (0.659, 0.7786)
+    ##     No Information Rate : 0.5957         
+    ##     P-Value [Acc > NIR] : 4.575e-05      
+    ##                                          
+    ##                   Kappa : 0.393          
+    ##                                          
+    ##  Mcnemar's Test P-Value : 0.0007382      
+    ##                                          
+    ##             Sensitivity : 0.5054         
+    ##             Specificity : 0.8686         
+    ##          Pos Pred Value : 0.7231         
+    ##          Neg Pred Value : 0.7212         
+    ##              Prevalence : 0.4043         
+    ##          Detection Rate : 0.2043         
+    ##    Detection Prevalence : 0.2826         
+    ##       Balanced Accuracy : 0.6870         
+    ##                                          
+    ##        'Positive' Class : Positive       
     ## 
 
 To visualize the confusion matrix, I will use `plot_confusion_matrix`

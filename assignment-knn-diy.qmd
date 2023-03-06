@@ -73,8 +73,9 @@ summary(cleanDF)
 After running `summary`, we see that normalization has set all the parameters into the same range Now, we split our data into training and test sets by using `train_test_split` from package `creditmodel`
 
 ```{r}
-test <- train_test_split(cleanDF)[[1]]
-train <- train_test_split(cleanDF)[[2]]
+test_train <- train_test_split(cleanDF)
+test <- test_train[[1]]
+train <- test_train[[2]]
 ```
 
 These two data frames inclue `outcome`. But we only need parameters without `outcome` variable to set as `train_feat` or \`test_feat, so we will exclude that variable.
