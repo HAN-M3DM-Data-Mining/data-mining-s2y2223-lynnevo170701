@@ -121,10 +121,10 @@ ggplot(plot, aes(x = k, y = error_rate )) +
   ylab("Error Rate")
 ```
 
-As shown in the graph, k = 11 will return the lowest error rate. 11 will be used as the amount of nearest neighbours `k` in `knn` function below.
+As shown in the graph, k = 10 will return the lowest error rate. 10 will be used as the amount of nearest neighbours `k` in `knn` function below.
 
 ```{r}
-cleanDF_test_pred <- knn(train = as.matrix(train_feat), test = as.matrix(test_feat), cl = as.matrix(train_labels), k = 11)
+cleanDF_test_pred <- knn(train = as.matrix(train_feat), test = as.matrix(test_feat), cl = as.matrix(train_labels), k = 10)
 cleanDF_test_pred <- relevel(cleanDF_test_pred, "Positive")
 head(cleanDF_test_pred)
 ```
