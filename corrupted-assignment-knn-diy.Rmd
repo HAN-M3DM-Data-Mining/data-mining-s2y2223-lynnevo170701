@@ -1,15 +1,14 @@
 ---
-title: "Assigment - kNN DIY"
-author:
-  - Author - Linh Khanh Vo
+title: "Assignment - kNN DIY"
+author: 
+- Author - Linh Khanh Vo
   - Reviewer - Anitar Munár
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-   html_notebook:
-    toc: true
-    toc_depth: 2
+  md_document:
+    variant: markdown_github
 ---
-
+# Assignment - kNN DIY
 ```{r include = FALSE}
 library(tidyverse)
 library(googlesheets4)
@@ -66,16 +65,15 @@ normalize <- function(x) {
   return ((x - min(x)) / (max(x) - min(x)))
 }
 cleanDF <- rawDF 
-cleanDF[,1:8] <- normalize(cleanDF[,1:(ncol(rawDF)-1)])
+cleanDF[1:8] <- normalize(cleanDF[1:(ncol(rawDF)-1)])
 summary(cleanDF)
 ```
 
 After running `summary`, we see that normalization has set all the parameters into the same range Now, we split our data into training and test sets by using `train_test_split` from package `creditmodel`
 
 ```{r}
-test_train <- train_test_split(cleanDF)
-test <- test_train[[1]]
-train <- test_train[[2]]
+test <- train_test_split(cleanDF)[[1]]
+train <- train_test_split(cleanDF)[[2]]
 ```
 
 These two data frames inclue `outcome`. But we only need parameters without `outcome` variable to set as `train_feat` or \`test_feat, so we will exclude that variable.
@@ -106,7 +104,7 @@ error_k <- function(k) {
       error_rate <- rbind(error_rate, 1-matrix$overall[["Accuracy"]])
   }
   error_k <- data.frame(k, error_rate)
-  colnames(error_k) <- c("k", "error_rate")
+  colnames <- c("k", "error_rate")
   error_k
 }
 ```
@@ -122,6 +120,7 @@ ggplot(plot, aes(x = k, y = error_rate )) +
   theme(plot.title = element_text(hjust = 0.5)) +
   ylab("Error Rate")
 ```
+
 As shown in the graph, k = 10 will return the lowest error rate. 10 will be used as the amount of nearest neighbours `k` in `knn` function below.
 
 ```{r}
@@ -129,6 +128,7 @@ cleanDF_test_pred <- knn(train = as.matrix(train_feat), test = as.matrix(test_fe
 cleanDF_test_pred <- relevel(cleanDF_test_pred, "Positive")
 head(cleanDF_test_pred)
 ```
+
 We have predicted labels. We will compare with actual labels.
 
 ```{r}
@@ -140,12 +140,14 @@ To visualize the confusion matrix, I will use `plot_confusion_matrix` function f
 
 ```{r}
 table <- as_tibble(cf$table)
-plot_confusion_matrix(table, target_col = "True", prediction_col = "Prediction", counts_col = "n")
+plot_confusion_matrix(table, target_col = "True", prediction_col = "Prediction", counts_col = )
 ```
 
 ## Evaluation and Deployment
-51.7.1% of test feature has True Negative and 20.4% is True Positive. 
+
+56.1% of test feature has True Negative and 20% is True Positive.
 
 ## References
+
 -   What is Diabetes? (2022, July 7). Centers for Disease Control and Prevention. <https://www.cdc.gov/diabetes/basics/diabetes.html>
 -   Diabetes Dataset. (2020, August 5). Kaggle. <https://www.kaggle.com/datasets/mathchi/diabetes-data-set>
