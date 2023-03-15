@@ -8,7 +8,9 @@ output:
   md_document:
     variant: markdown_github
 ---
-# Assignment - kNN DIY
+
+# Assignment - KNN DIY
+
 ```{r include = FALSE}
 library(tidyverse)
 library(googlesheets4)
@@ -20,15 +22,15 @@ library(cvms)
 
 ## Business Understanding
 
-Diabetes prevents your body to turn food intor energy. This can cause serious health problems, such as heart disease, vision loss, and kidney disease [*(What Is Diabetes?, 2022)*]{style="color:blue"}. Diabetes can be treated and be recognized early before it turns into an urgent case by doing some testing (blood glucose). Diabetes detection with early symptoms can reduce the death rate and prevent it from getting worse before it is too late. With machine learning algorithms, it could improve the accuracy and effectiveness of detection.
+Diabetes prevents your body to turn food into energy. This can cause serious health problems, such as heart disease, vision loss, and kidney disease [*(What Is Diabetes?, 2022)*]{style="color:blue"}. Diabetes can be treated and be recognized early before it turns into an urgent case by doing some testing (blood glucose). Diabetes detection with early symptoms can reduce the death rate and prevent it from getting worse before it is too late. With machine learning algorithms, it could improve the accuracy and effectiveness of detection.
 
 ## Data Understanding
 
 The dataset is orginially retrieved from National Institute of Diabetes and Digestive and Kidney Diseases.With the result of diagnostic measurements, a patient is predicted to have diabetes or not. Donor database is Vincent Sigillito from RMI Group Leader Applied Physics Laboratory The Johns Hopkins University Johns Hopkins Road Laurel. The dataset used is downloaded from open source [*(Diabetes Dataset, 2020)*]{style="color:blue"}. The instances are females at least 21 years old of Pima Indian heritage.\
 The dataset is stored in a Github repo and cloned into local repo. It is in .csv file. To read this, we use `readr` package.
 
-```{r}
-rawDF <- read_csv("./datasets/KNN-diabetes.csv")
+```{r message=FALSE}
+rawDF <- read_csv("https://raw.githubusercontent.com/HAN-M3DM-Data-Mining/data-mining-s2y2223-lynnevo170701/master/datasets/KNN-diabetes.csv")
 ```
 
 By using `str()` function, we can have first sense of data.
@@ -37,7 +39,25 @@ By using `str()` function, we can have first sense of data.
 str(rawDF)
 ```
 
-The dimension of dataset is 768 x 9, which means that the data has 768 observations and 9 variables The data type of all variables are `num`. We can use `summary` function to see the summary information of each variable and we can check if each has Nas values, which we need to clean.
+The dimension of dataset is 768 x 9, which means that the data has 768 observations and 9 variables:
+
+\- `Pregnancies`: Number of times pregnant
+
+\- `Glucose`: Plasma glucose concentration a 2 hours in an oral glucose tolerance test - `BloodPressure`: Diastolic blood pressure (mm Hg)
+
+\- `SkinThickness`: Triceps skin fold thickness (mm)
+
+\- `Insulin`: 2-Hour serum insulin (mu U/ml)
+
+\- `BMI`: Body mass index (weight in kg/(height in m)\^2)
+
+\- `DiabetesPedigreeFunction`: Diabetes pedigree function
+
+\- `Age`: Age (years)
+
+\- `Outcome`: Class variable (0 or 1)
+
+The data type of all variables are `num`. We can use `summary` function to see the summary information of each variable and we can check if each has Nas values, which we need to clean.
 
 ```{r}
 summary(rawDF)
@@ -72,8 +92,9 @@ summary(cleanDF)
 After running `summary`, we see that normalization has set all the parameters into the same range Now, we split our data into training and test sets by using `train_test_split` from package `creditmodel`
 
 ```{r}
-test <- train_test_split(cleanDF)[[1]]
-train <- train_test_split(cleanDF)[[2]]
+test_train <- train_test_split(cleanDF)
+test <- test_train[[1]]
+train <- test_train[[2]]
 ```
 
 These two data frames inclue `outcome`. But we only need parameters without `outcome` variable to set as `train_feat` or \`test_feat, so we will exclude that variable.
@@ -109,7 +130,7 @@ error_k <- function(k) {
 }
 ```
 
-Now, I will plot error rate with k from 1 to 40.
+Now, I will plot the error rate with k from 1 to 40.
 
 ```{r}
 plot <- error_k(1:40)
@@ -129,7 +150,7 @@ cleanDF_test_pred <- relevel(cleanDF_test_pred, "Positive")
 head(cleanDF_test_pred)
 ```
 
-We have predicted labels. We will compare with actual labels.
+We have predicted labels. We will compare them with actual labels.
 
 ```{r}
 cf <- confusionMatrix(cleanDF_test_pred, test_labels[[1]], positive = NULL, dnn = c("Prediction", "True"))
@@ -145,7 +166,17 @@ plot_confusion_matrix(table, target_col = "True", prediction_col = "Prediction",
 
 ## Evaluation and Deployment
 
-56.1% of test feature has True Negative and 20% is True Positive.
+Overall, the accuracy percentage is 72.1%. 51.7% of test feature has True Negative and 20.4% is True Positive. 7.8% is False positive and 20% is False negative.
+
+Of the 230 cases, 93 are positive (47 TPs and 46 FNs) and 137 are negative (119 TNs and 18 FPs).
+
+Of 137 negative diabetes, 86.9% are correctly predicted. This is a good result.
+
+However, of 93 positive cases, only 50.5% are correctly identified. Half of the cases go wrong. This is a bad outcome.
+
+**Precision** in this model is 72.3%. Precision tells us that when it predicts someone is positive, 72.3% of the time is correct.
+
+**Recall** in this model is 50.5%. Recall is quite high and Precision is quite low. This can be improved by increasing the classification threshold.
 
 ## References
 
